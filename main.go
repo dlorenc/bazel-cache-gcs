@@ -13,11 +13,13 @@ import (
 
 var (
 	bucketName string
+	port       int
 	bkt        *storage.BucketHandle
 )
 
 func handleFlags() {
 	flag.StringVar(&bucketName, "bucket", "", "GCS bucket to use as a bazel cache.")
+	flag.IntVar(&port, "port", 8080, "Port to listen on.")
 	flag.Parse()
 
 	if bucketName == "" {
@@ -36,17 +38,17 @@ func main() {
 	bkt = client.Bucket(bucketName)
 
 	http.HandleFunc("/", cacheHandler)
-	http.ListenAndServe(":8080", nil)
+	addr := fmt.Sprintf("localhost:%d", port)
+	fmt.Printf("gcs-bazel-cache listening on %s\n", addr)
+	http.ListenAndServe(addr, nil)
 }
 
 func doGet(ctx context.Context, path string, w io.Writer) error {
 	obj := bkt.Object(path)
 	r, err := obj.NewReader(ctx)
 	if err != nil {
-		fmt.Println("Cache miss!")
 		return err
 	}
-	fmt.Println("Cache hit!")
 	_, err = io.Copy(w, r)
 	return err
 }
