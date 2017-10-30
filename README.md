@@ -8,7 +8,6 @@ To read more about the bazel cache protocol, see the [documentation](https://git
 Configure bazel to use a cache by passing something like this in your .bazelrc:
 
 ```shell
-cat $HOME/.bazelrc
 startup --host_jvm_args=-Dbazel.DigestFunction=SHA1
 build --spawn_strategy=remote
 build --remote_rest_cache=http://localhost:8080/
