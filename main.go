@@ -5,26 +5,34 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
 	"cloud.google.com/go/storage"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
 	bucketName string
 	port       int
 	bkt        *storage.BucketHandle
+	verbosity  string
 )
 
 func handleFlags() {
 	flag.StringVar(&bucketName, "bucket", "", "GCS bucket to use as a bazel cache.")
 	flag.IntVar(&port, "port", 8080, "Port to listen on.")
+	flag.StringVar(&verbosity, "verbosity", "warn", "Logging verbosity.")
 	flag.Parse()
 
 	if bucketName == "" {
 		log.Fatalln("Please provide a value for the --bucket flag.")
 	}
+
+	lvl, err := log.ParseLevel(verbosity)
+	if err != nil {
+		log.Fatalln("Unable to parse verbosity flag.")
+	}
+	log.SetLevel(lvl)
 }
 
 func main() {
@@ -47,13 +55,16 @@ func doGet(ctx context.Context, path string, w io.Writer) error {
 	obj := bkt.Object(path)
 	r, err := obj.NewReader(ctx)
 	if err != nil {
+		log.Infof("Cache miss on %s.", path)
 		return err
 	}
+	log.Infof("Cache hit on %s.", path)
 	_, err = io.Copy(w, r)
 	return err
 }
 
 func doPut(ctx context.Context, path string, r io.Reader) error {
+	log.Infof("Adding %s to cache.", path)
 	obj := bkt.Object(path)
 	w := obj.NewWriter(ctx)
 	_, err := io.Copy(w, r)
@@ -62,6 +73,7 @@ func doPut(ctx context.Context, path string, r io.Reader) error {
 }
 
 func cacheHandler(w http.ResponseWriter, req *http.Request) {
+	log.Debug("Incoming http request: %v", req)
 	switch req.Method {
 	case "GET":
 		if err := doGet(req.Context(), req.URL.Path, w); err != nil {

@@ -20,6 +20,18 @@
   version = "v2.0.0"
 
 [[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
+  version = "v1.0.3"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  revision = "2509b142fb2b797aa7587dad548f113b2c0f20ce"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
@@ -30,6 +42,12 @@
   name = "golang.org/x/oauth2"
   packages = [".","google","internal","jws","jwt"]
   revision = "bb50c06baba3d0c76f9d125c0719093e315b5b44"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix","windows"]
+  revision = "661970f62f5897bc0cd5fdca7e087ba8a98a8fa1"
 
 [[projects]]
   branch = "master"
@@ -64,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a675e4536c61bc20e05145f8ff2e583469c2910235a51e580fca1de2af786465"
+  inputs-digest = "22e4766863e28b1415ef76dd72cc996e4a2c83178b3ec1fb212b0eafd3d23c7d"
   solver-name = "gps-cdcl"
   solver-version = 1

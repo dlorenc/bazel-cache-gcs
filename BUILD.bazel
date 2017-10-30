@@ -11,7 +11,10 @@ go_library(
     srcs = ["main.go"],
     importpath = "github.com/dlorenc/bazel-cache-gcs",
     visibility = ["//visibility:private"],
-    deps = ["//vendor/cloud.google.com/go/storage:go_default_library"],
+    deps = [
+        "//vendor/cloud.google.com/go/storage:go_default_library",
+        "//vendor/github.com/sirupsen/logrus:go_default_library",
+    ],
 )
 
 go_binary(
