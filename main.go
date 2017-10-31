@@ -27,6 +27,7 @@ func handleFlags() {
 	if bucketName == "" {
 		log.Fatalln("Please provide a value for the --bucket flag.")
 	}
+	log.Info("bucketname:", bucketName)
 
 	lvl, err := log.ParseLevel(verbosity)
 	if err != nil {
@@ -66,8 +67,16 @@ func doGet(ctx context.Context, path string, w io.Writer) error {
 func doPut(ctx context.Context, path string, r io.Reader) error {
 	log.Infof("Adding %s to cache.", path)
 	obj := bkt.Object(path)
+
 	w := obj.NewWriter(ctx)
-	_, err := io.Copy(w, r)
+	n, err := io.Copy(w, r)
+	if err != nil {
+		return err
+	}
+	if err := w.Close(); err != nil {
+		return err
+	}
+	log.Infof("Bytes written: %d", n)
 	return err
 
 }
@@ -83,6 +92,7 @@ func cacheHandler(w http.ResponseWriter, req *http.Request) {
 	case "PUT":
 		if err := doPut(req.Context(), req.URL.Path, req.Body); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Errorf("Put object: ", err)
 			return
 		}
 		req.Body.Close()
