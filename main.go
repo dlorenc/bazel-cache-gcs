@@ -27,7 +27,6 @@ func handleFlags() {
 	if bucketName == "" {
 		log.Fatalln("Please provide a value for the --bucket flag.")
 	}
-	log.Info("bucketname:", bucketName)
 
 	lvl, err := log.ParseLevel(verbosity)
 	if err != nil {
@@ -48,7 +47,7 @@ func main() {
 
 	http.HandleFunc("/", cacheHandler)
 	addr := fmt.Sprintf("localhost:%d", port)
-	fmt.Printf("gcs-bazel-cache listening on %s\n", addr)
+	fmt.Printf("gcs-bazel-cache listening on %s for bucket %s\n", addr, bucketName)
 	http.ListenAndServe(addr, nil)
 }
 
@@ -60,8 +59,12 @@ func doGet(ctx context.Context, path string, w io.Writer) error {
 		return err
 	}
 	log.Infof("Cache hit on %s.", path)
-	_, err = io.Copy(w, r)
-	return err
+	n, err = io.Copy(w, r)
+	if err != nil {
+		return err
+	}
+	log.Infof("Bytes copied from cache: %d", n)
+	return nil
 }
 
 func doPut(ctx context.Context, path string, r io.Reader) error {
