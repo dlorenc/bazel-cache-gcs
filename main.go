@@ -59,7 +59,7 @@ func doGet(ctx context.Context, path string, w io.Writer) error {
 		return err
 	}
 	log.Infof("Cache hit on %s.", path)
-	n, err = io.Copy(w, r)
+	n, err := io.Copy(w, r)
 	if err != nil {
 		return err
 	}
